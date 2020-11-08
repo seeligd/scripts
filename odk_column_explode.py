@@ -80,6 +80,8 @@ def needs_splitting(inputString):
     return re.match('^[0-9 ]+$', inputString) and ' ' in inputString
 
 def is_numeric(inputString):
+    if not inputString:
+        return False
     return re.match('^[0-9 ]+$', inputString)
 
 def col_name(colName, numVal):
