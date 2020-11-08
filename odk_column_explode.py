@@ -6,6 +6,7 @@ import csv, re, sys, os, pprint
 UNIQUE_NUMBERS = {}
 
 # if you want to use different values, you can do so by putting in higher values here
+# this dictionary comes from line 114 below
 MAX_VALUES = \
 {'child:c1change': 2,
  'child:c1mobile': 2,
@@ -52,12 +53,13 @@ if MAX_VALUES:
         UNIQUE_NUMBERS[key] = set([value])
 """
 
-# column names with muliple numbers
+# column names with values indicating a concatenated list of options
 MULTIPLE_NUMBERS = set([])
 
-# column names
+# all columns
 COLUMNS = []
 
+# all in input rows
 INPUT_ROWS = []
 
 if len(sys.argv) < 2:
@@ -67,13 +69,11 @@ fname = sys.argv[1]
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 filePath = os.path.join(__location__, fname)
-
 if not os.path.exists(filePath):
     exit("Could not find file: " + fname)
 
 # get the max integer for a string delimited set
 def get_max(inputString):
-    #print(repr(inputString))
     return max([int(x) for x in inputString.split(' ')])
 
 def needs_splitting(inputString):
@@ -88,8 +88,8 @@ def col_name(colName, numVal):
     return colName + "-" + str(numVal)
 
 # iterate through the csv to find the max nubmer per string delimited rows
-with open(filePath,'r') as tsvin:
-    reader = csv.DictReader(tsvin)
+with open(filePath,'r') as inputFile:
+    reader = csv.DictReader(inputFile)
     data = {}
     ignore = set([])
     COLUMNS = reader.fieldnames
@@ -102,10 +102,8 @@ with open(filePath,'r') as tsvin:
                 if len(values) > 1:
                    MULTIPLE_NUMBERS.add(header)
                 UNIQUE_NUMBERS[header] = UNIQUE_NUMBERS.get(header, set([])).union(values)
-    #print(UNIQUE_NUMBERS)
-    #print(ignore)
 
-# insert rowname-number colums for each potential value
+# insert rowname-number columns for each potential value
 for key, value in UNIQUE_NUMBERS.items():
     if key not in MULTIPLE_NUMBERS:
         continue
@@ -115,7 +113,7 @@ for key, value in UNIQUE_NUMBERS.items():
 
 # print header, max of each column with multiple items
 seed = {}
-print("Max number values for colums:")
+print("Max number values for columns:")
 for column in MULTIPLE_NUMBERS:
     seed[column] = max(UNIQUE_NUMBERS[column])
 pprint.pprint(seed)
